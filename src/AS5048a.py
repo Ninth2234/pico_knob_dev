@@ -1,4 +1,5 @@
 
+import micropython
 from machine import Pin, SPI
 from micropython import const
 import time
@@ -22,6 +23,7 @@ class RotaryEncoder:
     def _getMaximumValue(self):
         raise NotImplementedError("Subclasses should implement this!")
 
+    @micropython.native
     def update(self):
         
         newHardwareAngle = self.read_raw_angle()
@@ -33,8 +35,9 @@ class RotaryEncoder:
     def getRawAngle(self):
         return self.rawAngle
     
-    def getAngle(self):
-        return self.rawAngle/self._getMaximumValue()*360
+    @micropython.native
+    def getAngle(self)->float:
+        return self.rawAngle*360/self._getMaximumValue()
     
     def getHardwareAngle(self):
         return self._hardwareAngle/self._getMaximumValue()*360
@@ -51,6 +54,7 @@ class AS5048A(RotaryEncoder):
         
 
     # REGISTER LIST
+    @micropython.native
     def read_angle_register(self):
 
         self.cs.low()
@@ -60,13 +64,15 @@ class AS5048A(RotaryEncoder):
         rawAngle = (((receiveData[0]&0x3F)<<8)|receiveData[1])
         
         return rawAngle 
-
-    def read_raw_angle(self):
+    
+    @micropython.native
+    def read_raw_angle(self)->int:
         response = self.read_angle_register()
         angle = response & 0x3FFF
         return angle
     
-    def _getMaximumValue(self):
+    @micropython.native
+    def _getMaximumValue(self)->int:
         return self.maximumRawAngle
     
     def _read_register(self,reg):

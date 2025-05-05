@@ -11,7 +11,7 @@ screen_blk      = Pin(16,Pin.OUT)
 screen_sck      = Pin(14,Pin.OUT)
 screen_mosi     = Pin(15,Pin.OUT)
 
-screen_spi      = SPI(1, baudrate=6_000_000, sck=screen_sck, mosi=screen_mosi)
+screen_spi      = SPI(1, baudrate=625_000_000, sck=screen_sck, mosi=screen_mosi)
 
 
 ## magnetic encoder AS5048a

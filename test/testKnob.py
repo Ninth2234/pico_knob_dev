@@ -109,8 +109,8 @@ try:
     while True:
         encoder.update()
 
-        effort = pulseGen_Controller.compute(encoder.getAngle())
-
+        # effort = pulseGen_Controller.compute(encoder.getAngle())
+        effort = 1
         motor.drive(effort)
         print(effort)        
         # time.sleep(0.1)

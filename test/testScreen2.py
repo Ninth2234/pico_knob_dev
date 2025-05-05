@@ -1,3 +1,29 @@
+# color_setup.py Customise for your hardware config
+
+# Released under the MIT License (MIT). See LICENSE.
+# Copyright (c) 2024 Peter Hinch
+
+# As written, supports:
+# gc9a01 240x240 circular display on Pi Pico
+# Pin mapping is for Waveshare RP2040-Touch-LCD-1.28
+# Edit the driver import for other displays.
+
+# Demo of initialisation procedure designed to minimise risk of memory fail
+# when instantiating the frame buffer. The aim is to do this as early as
+# possible before importing other modules.
+
+# WIRING
+# Pico      Display
+# GPIO Pin
+# 3v3  36   Vin
+# IO6   9   CLK  Hardware SPI0
+# IO7  10   DATA (AKA SI MOSI)
+# IO8  11   DC
+# IO9  12   Rst
+# Gnd  13   Gnd
+# IO10 14   CS
+
+
 from color_setup import ssd  # Create a display instance
 
 from gui.core.nanogui import refresh
