@@ -230,16 +230,6 @@ class PulseGen2_Controller(Controller):
         self._old_t = t
         return effort
 
-def smooth_deadband(x: float, width: float) -> float:
-    if abs(x) <= width:
-        return 0.0
-    elif x > width:
-        d = x - width
-        return (d**3) / (width**2) + width / 2
-    else:  # x < -width
-        d = -x - width
-        return -((d**3) / (width**2) + width / 2)
-
 
 class PulseGen_Controller3(Controller):
     def __init__(self):
@@ -301,6 +291,53 @@ class PulseGen_Controller3(Controller):
 
         return ref_angle
 
+class PulseGen_Controller4(Controller):
+
+    def __init__(self):
+        self.k_p = 0
+        self.k_d = 500
+        self.ref = 0
+        
+        self._old_angle = 0
+        self._old_t = time.ticks_us()
+        
+        self.t_alpha = 0
+
+        self.vel_lowpass = LowPass(0.2)
+
+        self.delta = 10
+        
+
+    def compute(self, current_angle):
+        self.ref,dir = self.pulse_generator(self.ref,current_angle)
+
+        t = time.ticks_us()
+        error = normalize_angle_signed(self.ref-current_angle)
+        
+        vel = normalize_angle_signed(current_angle-self._old_angle)/(t-self._old_t+self.t_alpha)
+        vel = self.vel_lowpass.filter(vel)
+        effort = self.k_p*error - self.k_d*vel + dir*0.5
+
+        self._old_angle = current_angle
+        self._old_t = t
+        return effort
+    
+    def pulse_generator(self, ref_angle, angle):
+        # Calculate the difference between the current angle and the reference
+        diff = normalize_angle_signed(angle - ref_angle)
+        
+        # If the angle difference crosses half the delta, adjust the reference angle
+        if diff > self.delta / 2:
+            ref_angle += self.delta
+            return ref_angle,1
+        elif diff < -self.delta / 2:
+            ref_angle -= self.delta
+            return ref_angle,-1
+        return ref_angle,0
+
+        
+
+
 wall_controller = Wall_Controller()
 
 pos_controller = Position_controller()
@@ -310,7 +347,7 @@ pulseGen2_Controller = PulseGen2_Controller()
 
 pulseGen3_controller = PulseGen_Controller3()
 
-
+pulseGen4_controller = PulseGen_Controller4()
 
 
 
